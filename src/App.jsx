@@ -682,67 +682,69 @@ export default function App() {
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(100, 116, 139, 1); }
       `}</style>
 
-        {/* トップコントロールバー */}
-      <div className="max-w-6xl w-full flex flex-wrap justify-end gap-2 md:gap-3 mb-3">
-        <button
-          onClick={toggleQrsSound}
-          className={`flex items-center justify-center gap-2 px-3 md:px-4 py-2 text-sm md:text-base rounded-lg font-bold transition-all border flex-grow md:flex-grow-0
-            ${qrsSoundEnabled ? 'bg-blue-600 border-blue-500 text-white shadow-[0_0_10px_rgba(37,99,235,0.4)]' : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-slate-200'}`}
-        >
-          {qrsSoundEnabled ? <Volume2 className="w-4 h-4 md:w-5 md:h-5" /> : <VolumeX className="w-4 h-4 md:w-5 md:h-5" />}
-          {qrsSoundEnabled ? '心拍音 ON' : '心拍音 OFF'}
-        </button>
-        <button
-          onClick={toggleAlarmSound}
-          className={`flex items-center justify-center gap-2 px-3 md:px-4 py-2 text-sm md:text-base rounded-lg font-bold transition-all border flex-grow md:flex-grow-0
-            ${alarmSoundEnabled ? 'bg-red-600 border-red-500 text-white shadow-[0_0_10px_rgba(220,38,38,0.4)]' : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-slate-200'}`}
-        >
-          {alarmSoundEnabled ? <Bell className="w-4 h-4 md:w-5 md:h-5" /> : <BellOff className="w-4 h-4 md:w-5 md:h-5" />}
-          {alarmSoundEnabled ? 'アラーム音 ON' : 'アラーム音 OFF'}
-        </button>
-        <button
-          onClick={() => setIsPaused(!isPaused)}
-          className={`flex items-center justify-center gap-2 px-3 md:px-4 py-2 text-sm md:text-base rounded-lg font-bold transition-all border flex-grow md:flex-grow-0
-            ${isPaused ? 'bg-amber-600 border-amber-500 text-white shadow-[0_0_10px_rgba(217,119,6,0.5)]' : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-slate-200'}`}
-        >
-          {isPaused ? <Play className="w-4 h-4 md:w-5 md:h-5" /> : <Pause className="w-4 h-4 md:w-5 md:h-5" />}
-          {isPaused ? '波形再開' : '波形フリーズ'}
-        </button>
-       </div>
+      {/* トップコントロールバー */}
+      {!(uiTab === 'quiz') && (
+        <div className="max-w-6xl w-full flex flex-wrap justify-end gap-2 md:gap-3 mb-2 shrink-0">
+          <button
+            onClick={toggleQrsSound}
+            className={`flex items-center justify-center gap-2 px-3 md:px-4 py-1.5 md:py-2 text-xs md:text-base rounded-lg font-bold transition-all border flex-grow md:flex-grow-0
+              ${qrsSoundEnabled ? 'bg-blue-600 border-blue-500 text-white shadow-[0_0_10px_rgba(37,99,235,0.4)]' : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-slate-200'}`}
+          >
+            {qrsSoundEnabled ? <Volume2 className="w-4 h-4 md:w-5 md:h-5" /> : <VolumeX className="w-4 h-4 md:w-5 md:h-5" />}
+            心拍音
+          </button>
+          <button
+            onClick={toggleAlarmSound}
+            className={`flex items-center justify-center gap-2 px-3 md:px-4 py-1.5 md:py-2 text-xs md:text-base rounded-lg font-bold transition-all border flex-grow md:flex-grow-0
+              ${alarmSoundEnabled ? 'bg-red-600 border-red-500 text-white shadow-[0_0_10px_rgba(220,38,38,0.4)]' : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-slate-200'}`}
+          >
+            {alarmSoundEnabled ? <Bell className="w-4 h-4 md:w-5 md:h-5" /> : <BellOff className="w-4 h-4 md:w-5 md:h-5" />}
+            アラーム
+          </button>
+          <button
+            onClick={() => setIsPaused(!isPaused)}
+            className={`flex items-center justify-center gap-2 px-3 md:px-4 py-1.5 md:py-2 text-xs md:text-base rounded-lg font-bold transition-all border flex-grow md:flex-grow-0
+              ${isPaused ? 'bg-amber-600 border-amber-500 text-white shadow-[0_0_10px_rgba(217,119,6,0.5)]' : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-slate-200'}`}
+          >
+            {isPaused ? <Play className="w-4 h-4 md:w-5 md:h-5" /> : <Pause className="w-4 h-4 md:w-5 md:h-5" />}
+            波形操作
+          </button>
+        </div>
+      )}
 
       <div className={`
-        max-w-6xl w-full bg-slate-900 rounded-2xl overflow-hidden transition-all duration-300 border-2 flex flex-col
-        ${isAlarming ? 'border-red-600 shadow-[0_0_30px_rgba(239,68,68,0.4)]' : 'border-slate-800 shadow-2xl'}
+        max-w-6xl w-full bg-slate-900 rounded-2xl overflow-hidden transition-all duration-300 border-2 flex flex-col flex-1 min-h-0
+        ${isAlarming ? 'border-red-600 shadow-[0_0_30px_rgba(239,68,68,0.4)]' : 'border-slate-800 shadow-xl'}
       `}>
         
         {/* ヘッダーパネル */}
-        <div className={`border-b p-3 md:p-4 flex flex-col md:flex-row justify-between items-center gap-3 transition-colors duration-300 shrink-0
+        <div className={`border-b p-2 md:p-3 flex justify-between items-center gap-2 transition-colors duration-300 shrink-0
           ${isAlarming ? 'bg-red-950 border-red-900' : 'bg-slate-900 border-slate-800'}
         `}>
-          <div className="flex items-center gap-3 self-start md:self-auto">
+          <div className="flex items-center gap-2">
             {isAlarming ? (
-              <AlertTriangle className="w-6 h-6 md:w-8 md:h-8 text-red-500 animate-pulse" />
+              <AlertTriangle className="w-5 h-5 md:w-7 md:h-7 text-red-500 animate-pulse" />
             ) : uiTab === 'quiz' ? (
-              <HelpCircle className="w-6 h-6 md:w-8 md:h-8 text-blue-500" />
+              <HelpCircle className="w-5 h-5 md:w-7 md:h-7 text-blue-500" />
             ) : (
-              <Activity className="w-6 h-6 md:w-8 md:h-8 text-green-500" />
+              <Activity className="w-5 h-5 md:w-7 md:h-7 text-green-500" />
             )}
-            <h1 className={`text-lg md:text-xl font-bold tracking-wider ${isAlarming ? 'text-red-400' : uiTab === 'quiz' ? 'text-blue-400' : 'text-green-400'}`}>
-              {uiTab === 'quiz' ? 'ECG QUIZ CHALLENGE' : isAlarming ? 'ALARM - ABNORMAL DETECTED' : 'CLINICAL ECG SIMULATOR'}
+            <h1 className={`text-sm md:text-lg font-bold tracking-wider ${isAlarming ? 'text-red-400' : uiTab === 'quiz' ? 'text-blue-400' : 'text-green-400'}`}>
+              {uiTab === 'quiz' ? 'ECG QUIZ' : isAlarming ? 'ALARM DETECTED' : 'CLINICAL ECG SIMULATOR'}
             </h1>
           </div>
           
-          <div className={`flex items-center justify-between w-full md:w-auto gap-4 px-4 md:px-6 py-2 rounded-lg border transition-colors duration-300
+          <div className={`flex items-center gap-2 md:gap-4 px-3 md:px-5 py-1.5 md:py-2 rounded-lg border transition-colors duration-300
              ${isAlarming ? 'bg-red-900 border-red-700' : 'bg-slate-950 border-slate-800'}
           `}>
             <Heart 
-              className={`w-6 h-6 md:w-8 md:h-8 ${isAlarming ? 'text-red-300' : 'text-red-500'}`} 
+              className={`w-5 h-5 md:w-7 md:h-7 ${isAlarming ? 'text-red-300' : 'text-red-500'}`} 
               style={activeMode.animBpm > 0 && !isPaused ? { animation: `custom-heartbeat ${60/activeMode.animBpm}s infinite cubic-bezier(0.2, 0.8, 0.2, 1)` } : {}} 
             />
             <div className="flex flex-col items-end">
-              <span className={`text-[10px] md:text-xs font-bold tracking-widest ${isAlarming ? 'text-red-200' : 'text-slate-400'}`}>HEART RATE</span>
-              <div className="flex items-baseline gap-1 min-w-[60px] md:min-w-[80px] justify-end">
-                <span className={`text-3xl md:text-4xl font-mono font-bold leading-none ${isAlarming ? 'text-white' : 'text-green-400'}`}>
+              <span className={`text-[9px] md:text-[11px] font-bold tracking-widest leading-none mb-0.5 ${isAlarming ? 'text-red-200' : 'text-slate-400'}`}>HEART RATE</span>
+              <div className="flex items-baseline justify-end">
+                <span className={`text-xl md:text-3xl font-mono font-bold leading-none ${isAlarming ? 'text-white' : 'text-green-400'}`}>
                   {activeMode.bpm}
                 </span>
               </div>
@@ -819,35 +821,59 @@ export default function App() {
             
             {/* --- マニュアルモード --- */}
             {uiTab === 'manual' && (
-              <div className="flex flex-col gap-6">
-                {Array.from(groupedModes.entries()).map(([category, catModes]) => (
-                  <div key={category}>
-                    <h3 className={`text-sm font-bold tracking-widest mb-3 uppercase border-b pb-2
-                      ${category.includes('緊急') ? 'text-red-400 border-red-900/50' : 'text-slate-400 border-slate-700'}
-                    `}>
-                      {category}
-                    </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-                      {catModes.map((mode) => (
-                        <button
-                          key={mode.id}
-                          onClick={() => handleManualSelect(mode.id)}
-                          className={`relative px-4 py-3 rounded-xl transition-all duration-200 border-2 overflow-hidden text-left
-                            ${activeModeId === mode.id && !isPlayingScenario
-                              ? `${mode.color} border-transparent shadow-lg scale-[1.02]` 
-                              : 'bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-500'
-                            }
-                          `}
-                        >
-                          <div className="font-bold text-base mb-1">{mode.label}</div>
-                          <div className={`text-xs ${activeModeId === mode.id && !isPlayingScenario ? 'opacity-80' : 'text-slate-500'}`}>
-                            {mode.desc}
-                          </div>
-                        </button>
-                      ))}
+              <div className="flex flex-col gap-4">
+                {/* モバイル用プルダウン */}
+                <div className="block sm:hidden bg-slate-900 border border-slate-700 rounded-xl p-3 shadow-inner">
+                  <label className="block text-slate-400 text-xs font-bold mb-1">心電図波形モードを選択</label>
+                  <select
+                    value={activeModeId}
+                    onChange={(e) => handleManualSelect(e.target.value)}
+                    className="w-full bg-slate-800 border-2 border-slate-600 text-white rounded outline-none p-2 font-bold mb-2 shadow"
+                  >
+                    {Array.from(groupedModes.entries()).map(([category, catModes]) => (
+                      <optgroup key={category} label={category}>
+                        {catModes.map(mode => (
+                          <option key={mode.id} value={mode.id}>{mode.label} ({mode.bpm} BPM)</option>
+                        ))}
+                      </optgroup>
+                    ))}
+                  </select>
+                  <p className="text-xs text-slate-400 leading-relaxed border-t border-slate-700 pt-2 text-left">
+                    {modes.find(m => m.id === activeModeId)?.exp}
+                  </p>
+                </div>
+
+                {/* デスクトップ用グリッド */}
+                <div className="hidden sm:flex flex-col gap-6">
+                  {Array.from(groupedModes.entries()).map(([category, catModes]) => (
+                    <div key={category}>
+                      <h3 className={`text-sm font-bold tracking-widest mb-3 uppercase border-b pb-2
+                        ${category.includes('緊急') ? 'text-red-400 border-red-900/50' : 'text-slate-400 border-slate-700'}
+                      `}>
+                        {category}
+                      </h3>
+                      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                        {catModes.map((mode) => (
+                          <button
+                            key={mode.id}
+                            onClick={() => handleManualSelect(mode.id)}
+                            className={`relative px-4 py-3 rounded-xl transition-all duration-200 border-2 overflow-hidden text-left
+                              ${activeModeId === mode.id && !isPlayingScenario
+                                ? `${mode.color} border-transparent shadow-lg scale-[1.02]` 
+                                : 'bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-500'
+                              }
+                            `}
+                          >
+                            <div className="font-bold text-base mb-1">{mode.label}</div>
+                            <div className={`text-xs ${activeModeId === mode.id && !isPlayingScenario ? 'opacity-80' : 'text-slate-500'}`}>
+                              {mode.desc}
+                            </div>
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             )}
 
@@ -965,14 +991,25 @@ export default function App() {
 
                 {(quizState === 'playing' || quizState === 'answered') && quizQuestions.length > 0 && (
                   <div className="flex flex-col h-full animate-in fade-in">
-                    <div className="flex justify-between items-center mb-6">
-                      <div className="bg-slate-900 px-4 py-2 rounded-lg border border-slate-700">
-                        <span className="text-slate-400 font-bold mr-2">QUESTION</span>
-                        <span className="text-xl font-bold text-blue-400">{currentQuizIndex + 1} <span className="text-slate-500 text-sm">/ {quizQuestions.length}</span></span>
+                    
+                    {/* クイズ用の専用表示 - 画面を広く使う */}
+                    <div className="flex justify-between items-center mb-4 shrink-0">
+                      <div className="bg-slate-900 px-3 py-1.5 md:py-2 rounded-lg border border-slate-700 flex items-center gap-2">
+                        <span className="text-slate-400 font-bold text-xs md:text-sm">QUESTION</span>
+                        <span className="text-lg md:text-xl font-bold text-blue-400">{currentQuizIndex + 1} <span className="text-slate-500 text-[10px] md:text-sm">/ {quizQuestions.length}</span></span>
                       </div>
-                      <div className="bg-slate-900 px-4 py-2 rounded-lg border border-slate-700">
-                        <span className="text-slate-400 font-bold mr-2">SCORE</span>
-                        <span className="text-xl font-bold text-green-400">{quizScore}</span>
+                      
+                      <button
+                        onClick={() => setIsPaused(!isPaused)}
+                        className={`px-3 py-1.5 rounded-lg text-xs md:text-sm font-bold border transition-colors ${isPaused ? 'bg-amber-600 text-white border-amber-500' : 'bg-slate-800 text-slate-300 border-slate-600'}`}
+                      >
+                        {isPaused ? <Play className="w-3 h-3 md:w-4 md:h-4 inline mr-1"/> : <Pause className="w-3 h-3 md:w-4 md:h-4 inline mr-1"/>}
+                        {isPaused ? '波形再開' : 'フリーズ'}
+                      </button>
+
+                      <div className="bg-slate-900 px-3 py-1.5 md:py-2 rounded-lg border border-slate-700 flex items-center gap-2">
+                        <span className="text-slate-400 font-bold text-xs md:text-sm">SCORE</span>
+                        <span className="text-lg md:text-xl font-bold text-green-400">{quizScore}</span>
                       </div>
                     </div>
 
