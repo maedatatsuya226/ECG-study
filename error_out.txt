@@ -1,0 +1,158 @@
+﻿[36mvite v8.0.1 [32mbuilding client environment for production...[36m[39m
+[2K
+transforming...笨・1728 modules transformed.
+node.exe : [31m笨・[39
+m Build failed in 624
+ms
+発生場所 行:1 文字:1
++ & "C:\Program Files
+\nodejs/node.exe" "C:
+\Program Files\nodejs
+/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~
+    + CategoryInfo   
+           : NotSpe  
+  cified: ([31m笨・   
+ [39m Build faile    
+d in 624ms:Strin    g
+) [], RemoteExc    ep
+tion
+    + FullyQualified 
+   ErrorId : Native  
+  CommandError
+ 
+[31merror during bui
+ld:
+[31mBuild failed wit
+h 1 error:
+
+[plugin vite:css] C:/
+Users/Reha-mobileuser
+/OneDrive/繝峨く繝･繝｡繝ｳ繝・
+Antigravity/ECG/src/i
+ndex.css:undefined:Na
+N
+Error: [postcss] It l
+ooks like you're tryi
+ng to use `tailwindcs
+s` directly as a Post
+CSS plugin. The PostC
+SS plugin has moved t
+o a separate package,
+ so to continue using
+ Tailwind CSS with Po
+stCSS you'll need to 
+install `@tailwindcss
+/postcss` and update 
+your PostCSS configur
+ation.
+    at at (C:\Users\R
+eha-mobileuser\OneDri
+ve\繝峨く繝･繝｡繝ｳ繝・Antigra
+vity\ECG\node_modules
+\tailwindcss\dist\lib
+.js:38:1643)
+    at LazyResult.run
+OnRoot (C:\Users\Reha
+-mobileuser\OneDrive\
+繝峨く繝･繝｡繝ｳ繝・Antigravit
+y\ECG\node_modules\po
+stcss\lib\lazy-result
+.js:361:16)
+    at LazyResult.run
+Async (C:\Users\Reha-
+mobileuser\OneDrive\繝
+峨く繝･繝｡繝ｳ繝・Antigravity
+\ECG\node_modules\pos
+tcss\lib\lazy-result.
+js:290:26)
+    at LazyResult.asy
+nc (C:\Users\Reha-mob
+ileuser\OneDrive\繝峨く繝
+･繝｡繝ｳ繝・Antigravity\EC
+G\node_modules\postcs
+s\lib\lazy-result.js:
+192:30)
+    at LazyResult.the
+n (C:\Users\Reha-mobi
+leuser\OneDrive\繝峨く繝･
+繝｡繝ｳ繝・Antigravity\ECG
+\node_modules\postcss
+\lib\lazy-result.js:4
+36:17)[31m
+    at aggregateBindi
+ngErrorsIntoJsError (
+file:///C:/Users/Reha
+-mobileuser/OneDrive/
+%E3%83%89%E3%82%AD%E3
+%83%A5%E3%83%A1%E3%83
+%B3%E3%83%88/Antigrav
+ity/ECG/node_modules/
+rolldown/dist/shared/
+error-BO4SlZV_.mjs:48
+:18)
+    at unwrapBindingR
+esult (file:///C:/Use
+rs/Reha-mobileuser/On
+eDrive/%E3%83%89%E3%8
+2%AD%E3%83%A5%E3%83%A
+1%E3%83%B3%E3%83%88/A
+ntigravity/ECG/node_m
+odules/rolldown/dist/
+shared/error-BO4SlZV_
+.mjs:18:128)
+    at #build (file:/
+//C:/Users/Reha-mobil
+euser/OneDrive/%E3%83
+%89%E3%82%AD%E3%83%A5
+%E3%83%A1%E3%83%B3%E3
+%83%88/Antigravity/EC
+G/node_modules/rolldo
+wn/dist/shared/rolldo
+wn-build-yQC7KN8K.mjs
+:3311:34)
+    at async buildEnv
+ironment (file:///C:/
+Users/Reha-mobileuser
+/OneDrive/%E3%83%89%E
+3%82%AD%E3%83%A5%E3%8
+3%A1%E3%83%B3%E3%83%8
+8/Antigravity/ECG/nod
+e_modules/vite/dist/n
+ode/chunks/node.js:32
+817:64)
+    at async Object.b
+uild (file:///C:/User
+s/Reha-mobileuser/One
+Drive/%E3%83%89%E3%82
+%AD%E3%83%A5%E3%83%A1
+%E3%83%B3%E3%83%88/An
+tigravity/ECG/node_mo
+dules/vite/dist/node/
+chunks/node.js:33239:
+19)
+    at async Object.b
+uildApp (file:///C:/U
+sers/Reha-mobileuser/
+OneDrive/%E3%83%89%E3
+%82%AD%E3%83%A5%E3%83
+%A1%E3%83%B3%E3%83%88
+/Antigravity/ECG/node
+_modules/vite/dist/no
+de/chunks/node.js:332
+36:153)
+    at async CAC.<ano
+nymous> (file:///C:/U
+sers/Reha-mobileuser/
+OneDrive/%E3%83%89%E3
+%82%AD%E3%83%A5%E3%83
+%A1%E3%83%B3%E3%83%88
+/Antigravity/ECG/node
+_modules/vite/dist/no
+de/cli.js:778:3) {
+  errors: [Getter/Set
+ter]
+}[39m

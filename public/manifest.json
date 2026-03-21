@@ -1,0 +1,17 @@
+{
+  "name": "ECG Simulator",
+  "short_name": "ECG Sim",
+  "description": "Clinical ECG Simulator and Training Tool",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#020617",
+  "theme_color": "#020617",
+  "icons": [
+    {
+      "src": "pwa-512x512.png.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
