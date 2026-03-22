@@ -193,23 +193,48 @@ export default function App() {
       osc.start();
       osc.stop(ctx.currentTime + 0.1);
     } else if (type === 'alarm') {
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(800, ctx.currentTime);
-      osc.frequency.setValueAtTime(1000, ctx.currentTime + 0.1); 
-      gain.gain.setValueAtTime(0.06, ctx.currentTime); 
-      gain.gain.linearRampToValueAtTime(0.01, ctx.currentTime + 0.25);
-      osc.start();
-      osc.stop(ctx.currentTime + 0.25);
+      // 医療モニター準拠: IEC 60601-1-8 High Priority (3連続2音バースト)
+      // セグメント構成: 低音(523Hz) → 高音(784Hz) の2音セットを3回
+      const playTone = (freq, startTime, duration, vol = 0.35) => {
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        // 矩形波に近い倍音で医療機器らしいブザー音を再現
+        o.type = 'square';
+        o.frequency.setValueAtTime(freq, startTime);
+        g.gain.setValueAtTime(0, startTime);
+        g.gain.linearRampToValueAtTime(vol, startTime + 0.01);
+        g.gain.setValueAtTime(vol, startTime + duration - 0.02);
+        g.gain.linearRampToValueAtTime(0, startTime + duration);
+        o.connect(g);
+        g.connect(ctx.destination);
+        o.start(startTime);
+        o.stop(startTime + duration);
+      };
+
+      const t = ctx.currentTime;
+      const lo = 523; // C5 (ド)
+      const hi = 784; // G5 (ソ)
+      const toneDur = 0.11;
+      const gap = 0.04;
+      const pairGap = 0.06;
+
+      // 3セット鳴らす (低 → 高) × 3
+      for (let i = 0; i < 3; i++) {
+        const base = t + i * (toneDur * 2 + gap + pairGap);
+        playTone(lo, base, toneDur);
+        playTone(hi, base + toneDur + gap, toneDur);
+      }
+      return; // early return (osc/gain path not used for alarm)
     }
     osc.connect(gain);
     gain.connect(ctx.destination);
   }, []);
 
-  // アラーム音ループ
+  // アラーム音ループ (バースト間隔: 約1.5秒)
   useEffect(() => {
     let interval;
     if (isAlarming && alarmSoundEnabled) {
-      interval = setInterval(() => playBeep('alarm'), 600); 
+      interval = setInterval(() => playBeep('alarm'), 1500);
     }
     return () => clearInterval(interval);
   }, [isAlarming, alarmSoundEnabled, playBeep]);
