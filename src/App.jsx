@@ -193,51 +193,72 @@ export default function App() {
       osc.start();
       osc.stop(ctx.currentTime + 0.1);
     } else if (type === 'alarm') {
-      // 医療モニター準拠: IEC 60601-1-8 High Priority (3連続2音バースト)
-      // セグメント構成: 低音(523Hz) → 高音(784Hz) の2音セットを3回
-      const playTone = (freq, startTime, duration, vol = 0.35) => {
+      // 日本光電スタイルアラーム: 5パルス × 3グループ
+      // 周波数: 約530Hz(倍音含む矩形波)
+      const playPulse = (freq, startTime, dur, vol = 0.32) => {
         const o = ctx.createOscillator();
         const g = ctx.createGain();
-        // 矩形波に近い倍音で医療機器らしいブザー音を再現
         o.type = 'square';
         o.frequency.setValueAtTime(freq, startTime);
         g.gain.setValueAtTime(0, startTime);
-        g.gain.linearRampToValueAtTime(vol, startTime + 0.01);
-        g.gain.setValueAtTime(vol, startTime + duration - 0.02);
-        g.gain.linearRampToValueAtTime(0, startTime + duration);
+        g.gain.linearRampToValueAtTime(vol, startTime + 0.008);
+        g.gain.setValueAtTime(vol, startTime + dur - 0.01);
+        g.gain.linearRampToValueAtTime(0, startTime + dur);
         o.connect(g);
         g.connect(ctx.destination);
         o.start(startTime);
-        o.stop(startTime + duration);
+        o.stop(startTime + dur);
       };
 
       const t = ctx.currentTime;
-      const lo = 523; // C5 (ド)
-      const hi = 784; // G5 (ソ)
-      const toneDur = 0.11;
-      const gap = 0.04;
-      const pairGap = 0.06;
+      const freq = 530;       // 日本光電 高優先度アラーム周波数
+      const onDur = 0.13;     // ON時間
+      const offDur = 0.07;    // OFF時間
+      const groupGap = 0.35;  // グループ間隔
+      const pulsesPerGroup = 5;
 
-      // 3セット鳴らす (低 → 高) × 3
-      for (let i = 0; i < 3; i++) {
-        const base = t + i * (toneDur * 2 + gap + pairGap);
-        playTone(lo, base, toneDur);
-        playTone(hi, base + toneDur + gap, toneDur);
+      // 3グループ × 5パルス = 合計15パルス
+      for (let g = 0; g < 3; g++) {
+        const groupStart = t + g * (pulsesPerGroup * (onDur + offDur) + groupGap);
+        for (let p = 0; p < pulsesPerGroup; p++) {
+          playPulse(freq, groupStart + p * (onDur + offDur), onDur);
+        }
       }
-      return; // early return (osc/gain path not used for alarm)
+      return;
     }
     osc.connect(gain);
     gain.connect(ctx.destination);
   }, []);
 
-  // アラーム音ループ (バースト間隔: 約1.5秒)
+  // アラーム音ループ
   useEffect(() => {
-    let interval;
-    if (isAlarming && alarmSoundEnabled) {
-      interval = setInterval(() => playBeep('alarm'), 1500);
+    if (!isAlarming || !alarmSoundEnabled) return;
+
+    const ctx = audioCtxRef.current;
+    if (!ctx) return;
+    if (ctx.state === 'suspended') ctx.resume();
+
+    // 心静止の場合: 連続ピー音 (flat line tone ~806Hz)
+    if (activeModeId === 'asystole') {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(806, ctx.currentTime);
+      gain.gain.setValueAtTime(0.35, ctx.currentTime);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      return () => {
+        try { osc.stop(); } catch(e) {}
+      };
     }
+
+    // それ以外: 日本光電パターン (約3.5秒ごとに1バースト)
+    const totalBurstDuration = 3 * (5 * (0.13 + 0.07) + 0.35); // ~2.1秒分
+    playBeep('alarm');
+    const interval = setInterval(() => playBeep('alarm'), totalBurstDuration * 1000 + 1400);
     return () => clearInterval(interval);
-  }, [isAlarming, alarmSoundEnabled, playBeep]);
+  }, [isAlarming, alarmSoundEnabled, activeModeId, playBeep]);
 
 
   // --- キャリパー操作 ---
