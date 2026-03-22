@@ -192,72 +192,90 @@ export default function App() {
       gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
       osc.start();
       osc.stop(ctx.currentTime + 0.1);
-    } else if (type === 'alarm') {
-      // 日本光電スタイルアラーム: 5パルス × 3グループ
-      // 周波数: 約530Hz(倍音含む矩形波)
-      const playPulse = (freq, startTime, dur, vol = 0.32) => {
+    } else if (type === 'alarm_high') {
+      // ===== 日本光電 高優先度アラーム (致死性不整脈: VF/VT) =====
+      // IEC 60601-1-8: 5パルス × 3グループ、周波数 ~630Hz 矩形波
+      const makePulse = (f, t0, dur, vol = 0.4) => {
         const o = ctx.createOscillator();
         const g = ctx.createGain();
         o.type = 'square';
-        o.frequency.setValueAtTime(freq, startTime);
-        g.gain.setValueAtTime(0, startTime);
-        g.gain.linearRampToValueAtTime(vol, startTime + 0.008);
-        g.gain.setValueAtTime(vol, startTime + dur - 0.01);
-        g.gain.linearRampToValueAtTime(0, startTime + dur);
-        o.connect(g);
-        g.connect(ctx.destination);
-        o.start(startTime);
-        o.stop(startTime + dur);
+        o.frequency.setValueAtTime(f, t0);
+        g.gain.setValueAtTime(0, t0);
+        g.gain.linearRampToValueAtTime(vol, t0 + 0.008);
+        g.gain.setValueAtTime(vol, t0 + dur - 0.01);
+        g.gain.linearRampToValueAtTime(0, t0 + dur);
+        o.connect(g); g.connect(ctx.destination);
+        o.start(t0); o.stop(t0 + dur);
       };
-
       const t = ctx.currentTime;
-      const freq = 530;       // 日本光電 高優先度アラーム周波数
-      const onDur = 0.13;     // ON時間
-      const offDur = 0.07;    // OFF時間
-      const groupGap = 0.35;  // グループ間隔
-      const pulsesPerGroup = 5;
-
-      // 3グループ × 5パルス = 合計15パルス
+      const f = 630;      // 高優先度アラーム周波数
+      const on = 0.13;    // パルスON時間
+      const off = 0.07;   // パルスOFF時間
+      const grpGap = 0.3; // グループ間の無音
+      const n = 5;        // パルス数/グループ
       for (let g = 0; g < 3; g++) {
-        const groupStart = t + g * (pulsesPerGroup * (onDur + offDur) + groupGap);
-        for (let p = 0; p < pulsesPerGroup; p++) {
-          playPulse(freq, groupStart + p * (onDur + offDur), onDur);
-        }
+        const base = t + g * (n * (on + off) + grpGap);
+        for (let p = 0; p < n; p++) makePulse(f, base + p * (on + off), on);
       }
+      return;
+    } else if (type === 'alarm_mid') {
+      // ===== 日本光電 中優先度アラーム (頻脈・徐脈等) =====
+      // IEC 60601-1-8: 3パルス × 1グループ、周波数 ~530Hz 矩形波
+      const makePulse = (f, t0, dur, vol = 0.32) => {
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type = 'square';
+        o.frequency.setValueAtTime(f, t0);
+        g.gain.setValueAtTime(0, t0);
+        g.gain.linearRampToValueAtTime(vol, t0 + 0.01);
+        g.gain.setValueAtTime(vol, t0 + dur - 0.015);
+        g.gain.linearRampToValueAtTime(0, t0 + dur);
+        o.connect(g); g.connect(ctx.destination);
+        o.start(t0); o.stop(t0 + dur);
+      };
+      const t = ctx.currentTime;
+      const f = 530;   // 中優先度周波数
+      const on = 0.18; // パルスON（少し長め）
+      const off = 0.1; // パルスOFF
+      const n = 3;     // パルス数
+      for (let p = 0; p < n; p++) makePulse(f, t + p * (on + off), on);
       return;
     }
     osc.connect(gain);
     gain.connect(ctx.destination);
   }, []);
 
-  // アラーム音ループ
+  // アラーム音ループ（致死性・非致死性・心静止で分類）
   useEffect(() => {
     if (!isAlarming || !alarmSoundEnabled) return;
-
     const ctx = audioCtxRef.current;
     if (!ctx) return;
     if (ctx.state === 'suspended') ctx.resume();
 
-    // 心静止の場合: 連続ピー音 (flat line tone ~806Hz)
+    // 心静止: 連続「ピーーーー」(~806Hz sine)
     if (activeModeId === 'asystole') {
       const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
+      const g = ctx.createGain();
       osc.type = 'sine';
       osc.frequency.setValueAtTime(806, ctx.currentTime);
-      gain.gain.setValueAtTime(0.35, ctx.currentTime);
-      osc.connect(gain);
-      gain.connect(ctx.destination);
+      g.gain.setValueAtTime(0.38, ctx.currentTime);
+      osc.connect(g); g.connect(ctx.destination);
       osc.start();
-      return () => {
-        try { osc.stop(); } catch(e) {}
-      };
+      return () => { try { osc.stop(); } catch(e) {} };
     }
 
-    // それ以外: 日本光電パターン (約3.5秒ごとに1バースト)
-    const totalBurstDuration = 3 * (5 * (0.13 + 0.07) + 0.35); // ~2.1秒分
-    playBeep('alarm');
-    const interval = setInterval(() => playBeep('alarm'), totalBurstDuration * 1000 + 1400);
-    return () => clearInterval(interval);
+    // VF/VT 高優先度: 5パルス×3グループ、約3.5秒ごと反復
+    if (['vf', 'vt'].includes(activeModeId)) {
+      const burstLen = 3 * (5 * (0.13 + 0.07) + 0.3); // ~2.1秒
+      playBeep('alarm_high');
+      const id = setInterval(() => playBeep('alarm_high'), (burstLen + 1.4) * 1000);
+      return () => clearInterval(id);
+    }
+
+    // それ以外(頻脈・徐脈等) 中優先度: 3パルス、約4秒ごと反復
+    playBeep('alarm_mid');
+    const id = setInterval(() => playBeep('alarm_mid'), 4000);
+    return () => clearInterval(id);
   }, [isAlarming, alarmSoundEnabled, activeModeId, playBeep]);
 
 
