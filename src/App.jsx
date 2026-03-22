@@ -784,38 +784,40 @@ export default function App() {
         </div>
 
         {/* コントロールパネルエリア */}
-        <div className="flex flex-col bg-slate-800 border-t border-slate-700 h-[45vh]">
+        <div className="flex flex-col bg-slate-800 border-t border-slate-700 flex-1 min-h-0">
           
           {/* タブスイッチ */}
-          <div className="flex border-b border-slate-700 bg-slate-900 shrink-0">
-            <button onClick={() => handleTabChange('manual')} className={`flex-1 py-3 text-sm font-bold flex items-center justify-center gap-2 transition-all ${uiTab === 'manual' ? 'text-green-400 border-b-2 border-green-500 bg-slate-800' : 'text-slate-400 hover:text-slate-200'}`}>
-              <Activity className="w-4 h-4" /> マニュアル
-            </button>
-            <button onClick={() => handleTabChange('scenario')} className={`flex-1 py-3 text-sm font-bold flex items-center justify-center gap-2 transition-all ${uiTab === 'scenario' ? 'text-indigo-400 border-b-2 border-indigo-500 bg-slate-800' : 'text-slate-400 hover:text-slate-200'}`}>
-              <List className="w-4 h-4" /> シナリオ
-            </button>
-            <button onClick={() => handleTabChange('quiz')} className={`flex-1 py-3 text-sm font-bold flex items-center justify-center gap-2 transition-all ${uiTab === 'quiz' ? 'text-blue-400 border-b-2 border-blue-500 bg-slate-800' : 'text-slate-400 hover:text-slate-200'}`}>
-              <HelpCircle className="w-4 h-4" /> クイズ
-            </button>
-            <button onClick={() => handleTabChange('tutorial')} className={`flex-1 py-3 text-sm font-bold flex items-center justify-center gap-2 transition-all ${uiTab === 'tutorial' ? 'text-emerald-400 border-b-2 border-emerald-500 bg-slate-800' : 'text-slate-400 hover:text-slate-200'}`}>
-              <Info className="w-4 h-4" /> 解説
-            </button>
-            <button onClick={() => handleTabChange('acls')} className={`flex-1 py-3 text-sm font-bold flex items-center justify-center gap-2 transition-all ${uiTab === 'acls' ? 'text-red-400 border-b-2 border-red-500 bg-slate-800' : 'text-slate-400 hover:text-slate-200'}`}>
-              <AlertTriangle className="w-4 h-4" /> 救急(ACLS)
-            </button>
-            <button onClick={() => handleTabChange('pacing')} className={`flex-1 py-3 text-sm font-bold flex items-center justify-center gap-2 transition-all ${uiTab === 'pacing' ? 'text-purple-400 border-b-2 border-purple-500 bg-slate-800' : 'text-slate-400 hover:text-slate-200'}`}>
-              <Activity className="w-4 h-4" /> ペーシング
-            </button>
-            <button onClick={() => handleTabChange('diy')} className={`flex-1 py-3 text-sm font-bold flex items-center justify-center gap-2 transition-all ${uiTab === 'diy' ? 'text-pink-400 border-b-2 border-pink-500 bg-slate-800' : 'text-slate-400 hover:text-slate-200'}`}>
-              <Sliders className="w-4 h-4" /> DIY構築
-            </button>
-            <button onClick={() => handleTabChange('caliper')} className={`flex-1 py-3 text-sm font-bold flex items-center justify-center gap-2 transition-all ${uiTab === 'caliper' ? 'text-cyan-400 border-b-2 border-cyan-500 bg-slate-800' : 'text-slate-400 hover:text-slate-200'}`}>
-              <Clock className="w-4 h-4" /> キャリパー
-            </button>
-            <button onClick={() => handleTabChange('settings')} className={`flex-1 py-3 text-sm font-bold flex items-center justify-center gap-2 transition-all ${uiTab === 'settings' ? 'text-amber-400 border-b-2 border-amber-500 bg-slate-800' : 'text-slate-400 hover:text-slate-200'}`}>
-              <Settings className="w-4 h-4" /> 設定
-            </button>
-          </div>
+          {!(uiTab === 'quiz' && (quizState === 'playing' || quizState === 'answered')) && (
+            <div className="flex border-b border-slate-700 bg-slate-900 overflow-x-auto custom-scrollbar shrink-0 md:justify-around">
+              <button onClick={() => handleTabChange('manual')} className={`flex-1 min-w-[100px] py-3 text-sm font-bold flex items-center justify-center gap-2 transition-all ${uiTab === 'manual' ? 'text-green-400 border-b-2 border-green-500 bg-slate-800' : 'text-slate-400 hover:text-slate-200'}`}>
+                <Activity className="w-4 h-4" /> マニュアル
+              </button>
+              <button onClick={() => handleTabChange('scenario')} className={`flex-1 min-w-[100px] py-3 text-sm font-bold flex items-center justify-center gap-2 transition-all ${uiTab === 'scenario' ? 'text-indigo-400 border-b-2 border-indigo-500 bg-slate-800' : 'text-slate-400 hover:text-slate-200'}`}>
+                <List className="w-4 h-4" /> シナリオ
+              </button>
+              <button onClick={() => handleTabChange('quiz')} className={`flex-1 min-w-[100px] py-3 text-sm font-bold flex items-center justify-center gap-2 transition-all ${uiTab === 'quiz' ? 'text-blue-400 border-b-2 border-blue-500 bg-slate-800' : 'text-slate-400 hover:text-slate-200'}`}>
+                <HelpCircle className="w-4 h-4" /> クイズ
+              </button>
+              <button onClick={() => handleTabChange('tutorial')} className={`flex-1 min-w-[100px] py-3 text-sm font-bold flex items-center justify-center gap-2 transition-all ${uiTab === 'tutorial' ? 'text-emerald-400 border-b-2 border-emerald-500 bg-slate-800' : 'text-slate-400 hover:text-slate-200'}`}>
+                <Info className="w-4 h-4" /> 解説
+              </button>
+              <button onClick={() => handleTabChange('acls')} className={`flex-1 min-w-[100px] py-3 text-sm font-bold flex items-center justify-center gap-2 transition-all ${uiTab === 'acls' ? 'text-red-400 border-b-2 border-red-500 bg-slate-800' : 'text-slate-400 hover:text-slate-200'}`}>
+                <AlertTriangle className="w-4 h-4" /> 救急(ACLS)
+              </button>
+              <button onClick={() => handleTabChange('pacing')} className={`flex-1 min-w-[100px] py-3 text-sm font-bold flex items-center justify-center gap-2 transition-all ${uiTab === 'pacing' ? 'text-purple-400 border-b-2 border-purple-500 bg-slate-800' : 'text-slate-400 hover:text-slate-200'}`}>
+                <Activity className="w-4 h-4" /> ペーシング
+              </button>
+              <button onClick={() => handleTabChange('diy')} className={`flex-1 min-w-[100px] py-3 text-sm font-bold flex items-center justify-center gap-2 transition-all ${uiTab === 'diy' ? 'text-pink-400 border-b-2 border-pink-500 bg-slate-800' : 'text-slate-400 hover:text-slate-200'}`}>
+                <Sliders className="w-4 h-4" /> DIY構築
+              </button>
+              <button onClick={() => handleTabChange('caliper')} className={`flex-1 min-w-[100px] py-3 text-sm font-bold flex items-center justify-center gap-2 transition-all ${uiTab === 'caliper' ? 'text-cyan-400 border-b-2 border-cyan-500 bg-slate-800' : 'text-slate-400 hover:text-slate-200'}`}>
+                <Clock className="w-4 h-4" /> キャリパー
+              </button>
+              <button onClick={() => handleTabChange('settings')} className={`flex-1 min-w-[100px] py-3 text-sm font-bold flex items-center justify-center gap-2 transition-all ${uiTab === 'settings' ? 'text-amber-400 border-b-2 border-amber-500 bg-slate-800' : 'text-slate-400 hover:text-slate-200'}`}>
+                <Settings className="w-4 h-4" /> 設定
+              </button>
+            </div>
+          )}
 
           <div className="p-6 overflow-y-auto custom-scrollbar flex-1 relative">
             
