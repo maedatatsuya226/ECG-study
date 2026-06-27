@@ -91,7 +91,9 @@ export default function App() {
     { id: 'avb1', category: '房室ブロック', label: '1度房室ブロック', desc: 'PR間隔延長', bpm: 70, animBpm: 70, color: 'bg-yellow-600 hover:bg-yellow-500',
       exp: '心房から心室への伝導に時間がかかっていますが（PR間隔が0.2秒以上）、信号は全て伝わっています。' },
     { id: 'avb2_1', category: '房室ブロック', label: '2度(Wenckebach)', desc: '徐々に延長し脱落', bpm: 52, animBpm: 70, color: 'bg-orange-600 hover:bg-orange-500',
-      exp: 'PR間隔が拍動ごとに徐々に延び、最終的にQRS波が1回抜け落ちるサイクルを繰り返すタイプのブロックです。' },
+      exp: 'PR間隔が拍動ごとに徐々に延び、最終的にQRS波が1回抜け落ちるサイクルを繰り返すタイプ（Mobitz I型）のブロックです。' },
+    { id: 'avb2_2', category: '房室ブロック', label: '2度(Mobitz II)', desc: '固定PR・突然脱落', bpm: 55, animBpm: 70, color: 'bg-orange-700 hover:bg-orange-600',
+      exp: 'PR間隔が一定のまま、突然QRS波が抜け落ちるタイプ（Mobitz II型）のブロックです。Wenckebach型より予後不良で、ペースメーカー適応となることが多いです。' },
     { id: 'avb3', category: '房室ブロック', label: '3度(完全ブロック)', desc: 'P波とQRSの解離', bpm: 35, animBpm: 35, color: 'bg-red-800 hover:bg-red-700',
       exp: '心房と心室の電気的連絡が完全に途絶え、それぞれが独立したリズムで動いています。ペースメーカー適応です。' },
     
@@ -103,10 +105,6 @@ export default function App() {
       exp: '予定より早く心房から異常な信号が出る期外収縮です。先行するP波の形が正常と異なります。' },
     { id: 'pvc', category: 'その他の不整脈', label: '心室期外収縮 (PVC)', desc: '幅広QRSの混入', bpm: 70, animBpm: 70, color: 'bg-pink-600 hover:bg-pink-500',
       exp: '心室から予定より早く信号が出る不整脈です。先行するP波を持たない、幅広く変形したQRS波が特徴です。' },
-    { id: 'rbbb', category: 'その他の不整脈', label: '右脚ブロック (RBBB)', desc: '幅広いQRS波', bpm: 70, animBpm: 70, color: 'bg-amber-600 hover:bg-amber-500',
-      exp: '右心室への電気伝導が遅れるためQRS波の幅が広くなります。V1誘導でのM字型波形が特徴的です。' },
-    { id: 'lbbb', category: 'その他の不整脈', label: '左脚ブロック (LBBB)', desc: '幅広いQS波', bpm: 70, animBpm: 70, color: 'bg-lime-700 hover:bg-lime-600',
-      exp: '左心室への電気伝導が遅れるため幅広のQRS波となります。新たに発生した場合は心筋梗塞を疑います。' },
     { id: 'paced', category: 'その他の不整脈', label: 'ペースメーカー', desc: 'ペーシングスパイク', bpm: 60, animBpm: 60, color: 'bg-emerald-600 hover:bg-emerald-500',
       exp: '人工心肺ペースメーカーによる波形です。電気刺激による鋭い縦線（スパイク）の直後に幅広いQRSが続きます。' },
     { id: 'sss', category: 'その他の不整脈', label: '洞不全症候群 (SSS)', desc: '突然のポーズ', bpm: 50, animBpm: 65, color: 'bg-slate-600 hover:bg-slate-500',
@@ -115,10 +113,12 @@ export default function App() {
 
   const scenarios = [
     { id: 'acs_to_vf', title: 'ACSからVFへの急変', description: '胸痛から始まり、虚血、不整脈頻発を経て心室細動へ。', steps: [{ modeId: 'normal', duration: 8, label: '洞調律' }, { modeId: 'st_el', duration: 15, label: 'ST上昇' }, { modeId: 'pvc', duration: 12, label: 'PVC頻発' }, { modeId: 'vt', duration: 8, label: 'VT' }, { modeId: 'vf', duration: null, label: 'VF' }] },
-    { id: 'avb_progression', title: '房室ブロックの進行', description: '1度房室ブロックからWenckebach型を経て完全房室ブロックへ。', steps: [{ modeId: 'normal', duration: 8, label: '洞調律' }, { modeId: 'avb1', duration: 15, label: '1度ブロック' }, { modeId: 'avb2_1', duration: 20, label: '2度ブロック' }, { modeId: 'avb3', duration: null, label: '完全房室ブロック' }] },
+    { id: 'avb_progression', title: '房室ブロックの進行', description: '1度房室ブロックからWenckebach型・Mobitz II型を経て完全房室ブロックへ。', steps: [{ modeId: 'normal', duration: 8, label: '洞調律' }, { modeId: 'avb1', duration: 15, label: '1度ブロック' }, { modeId: 'avb2_1', duration: 18, label: 'Wenckebach' }, { modeId: 'avb2_2', duration: 18, label: 'Mobitz II' }, { modeId: 'avb3', duration: null, label: '完全房室ブロック' }] },
   ];
 
   const activeMode = modes.find(m => m.id === activeModeId) || modes[0];
+  const monitorLead = activeMode.lead || 'II';
+  const monitorLeadLabel = `Lead ${monitorLead}`;
   const currentBpmNum = typeof activeMode.bpm === 'number' ? activeMode.bpm : (activeMode.id === 'afib' ? 90 : 0);
   const isLethalCondition = ['vf', 'vt', 'asystole'].includes(activeModeId);
 
@@ -384,22 +384,6 @@ export default function App() {
         return 0;
       },
       T_STD: (t) => t >= 0 && t < 0.16 ? -0.2 * (1 - t / 0.16) - 0.15 * Math.sin((t / 0.16) * Math.PI) : 0,
-      QRS_RBBB: (t) => {
-        if (t >= 0 && t < 0.02) return 0.2 * (t / 0.02);
-        if (t >= 0.02 && t < 0.04) return 0.2 - 0.5 * ((t - 0.02) / 0.02);
-        if (t >= 0.04 && t < 0.07) return -0.3 + 1.1 * ((t - 0.04) / 0.03);
-        if (t >= 0.07 && t < 0.12) return 0.8 - 1.0 * ((t - 0.07) / 0.05);
-        if (t >= 0.12 && t < 0.14) return -0.2 + 0.2 * ((t - 0.12) / 0.02);
-        return 0;
-      },
-      QRS_LBBB: (t) => {
-        if (t >= 0 && t < 0.03) return -0.2 * (t / 0.03);
-        if (t >= 0.03 && t < 0.08) return -0.2 - 0.7 * ((t - 0.03) / 0.05);
-        if (t >= 0.08 && t < 0.13) return -0.9 + 0.9 * ((t - 0.08) / 0.05);
-        return 0;
-      },
-      T_INV: (t) => t >= 0 && t < 0.16 ? -0.2 * Math.sin((t / 0.16) * Math.PI) : 0,
-      T_POS: (t) => t >= 0 && t < 0.18 ? 0.3 * Math.sin((t / 0.18) * Math.PI) : 0,
       PVC_QRS: (t) => {
         if (t >= 0 && t < 0.06) return -0.6 * Math.sin((t / 0.06) * Math.PI * 0.5);
         if (t >= 0.06 && t < 0.14) return -0.6 + 1.2 * Math.sin(((t - 0.06) / 0.08) * Math.PI * 0.5);
@@ -472,6 +456,14 @@ export default function App() {
             }
             nextBeatTime += 60 / 70; beatIndex++;
           }
+          else if (mode === 'avb2_2') {
+            events.push({ type: 'P', time: nextBeatTime, isQrs: false });
+            if (beatIndex % 3 !== 2) {
+              const pr = 0.18;
+              events.push({ type: 'QRS', time: nextBeatTime + pr, isQrs: true }, { type: 'T', time: nextBeatTime + pr + 0.14, isQrs: false });
+            }
+            nextBeatTime += 60 / 70; beatIndex++;
+          }
           else if (mode === 'sss') {
             events.push({ type: 'P', time: nextBeatTime, isQrs: false }, { type: 'QRS', time: nextBeatTime + 0.12, isQrs: true }, { type: 'T', time: nextBeatTime + 0.26, isQrs: false });
             beatIndex++; nextBeatTime += (beatIndex % 4 === 0) ? (60 / 65) * 2.8 : 60 / 65;
@@ -496,10 +488,6 @@ export default function App() {
               nextBeatTime += 60 / 70;
             }
           }
-          else if (mode === 'rbbb' || mode === 'lbbb') {
-            events.push({ type: 'P', time: nextBeatTime, isQrs: false }, { type: mode === 'rbbb' ? 'QRS_RBBB' : 'QRS_LBBB', time: nextBeatTime + 0.12, isQrs: true }, { type: mode === 'rbbb' ? 'T_INV' : 'T_POS', time: nextBeatTime + (mode === 'rbbb' ? 0.26 : 0.25), isQrs: false });
-            nextBeatTime += 60 / 70;
-          }
           else if (mode === 'paced') {
             events.push({ type: 'SPIKE', time: nextBeatTime + 0.11, isQrs: false }, { type: 'PVC_QRS', time: nextBeatTime + 0.12, isQrs: true }, { type: 'PVC_T', time: nextBeatTime + 0.30, isQrs: false });
             nextBeatTime += 60 / pacingRateRef.current;
@@ -512,8 +500,6 @@ export default function App() {
             let qType = 'QRS'; let tType = 'T';
             if (qrs === 'ste') { qType = 'QRS_STE'; tType = 'T_STE'; }
             else if (qrs === 'std') { qType = 'QRS_STD'; tType = 'T_STD'; }
-            else if (qrs === 'rbbb') { qType = 'QRS_RBBB'; tType = 'T_INV'; }
-            else if (qrs === 'lbbb') { qType = 'QRS_LBBB'; tType = 'T_POS'; }
             
             events.push({ type: qType, time: qrsTime, isQrs: true });
             events.push({ type: tType, time: qrsTime + 0.14, isQrs: false });
@@ -648,10 +634,16 @@ export default function App() {
     }
   };
 
+  const controlPanelRef = useRef(null);
+
   const handleManualSelect = (modeId) => {
+    const scrollTop = controlPanelRef.current?.scrollTop ?? 0;
     setIsPlayingScenario(false);
     setActiveModeId(modeId);
     if (isPaused) setIsPaused(false);
+    requestAnimationFrame(() => {
+      if (controlPanelRef.current) controlPanelRef.current.scrollTop = scrollTop;
+    });
   };
 
   const handleStartScenario = (scenarioId) => {
@@ -736,7 +728,7 @@ export default function App() {
 
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4 font-sans text-slate-200">
+    <div className="h-[100dvh] max-h-[100dvh] bg-slate-950 flex flex-col items-center p-2 md:p-4 overflow-hidden font-sans text-slate-200">
       <style>{`
         @keyframes custom-heartbeat { 0% { transform: scale(1); } 15% { transform: scale(1.25); } 30% { transform: scale(1); } 100% { transform: scale(1); } }
         @keyframes pulse-red { 0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } 50% { box-shadow: 0 0 20px 5px rgba(239, 68, 68, 0.4); } }
@@ -777,7 +769,7 @@ export default function App() {
       )}
 
       <div className={`
-        max-w-6xl w-full bg-slate-900 rounded-2xl overflow-hidden transition-all duration-300 border-2 flex flex-col flex-1 min-h-0
+        max-w-6xl w-full bg-slate-900 rounded-2xl overflow-hidden transition-all duration-300 border-2 flex flex-col flex-1 min-h-0 max-h-full
         ${isAlarming ? 'border-red-600 shadow-[0_0_30px_rgba(239,68,68,0.4)]' : 'border-slate-800 shadow-xl'}
       `}>
         
@@ -840,6 +832,11 @@ export default function App() {
               FROZEN
             </div>
           )}
+          <div className="absolute top-3 right-3 flex flex-col items-end z-30 pointer-events-none">
+            <span className="text-[9px] md:text-[10px] font-bold tracking-widest text-slate-500 leading-none mb-0.5">MONITOR</span>
+            <span className="text-sm md:text-lg font-mono font-bold text-green-400 leading-none">{monitorLeadLabel}</span>
+            <span className="text-[8px] md:text-[9px] text-slate-500 mt-1 leading-tight text-right">肢誘導 I / II / III のうち II</span>
+          </div>
           {isPaused && !isDraggingCaliper && caliperStart === null && (
             <div className="absolute bottom-4 left-0 right-0 text-center text-slate-500 text-sm font-medium z-30 pointer-events-none">
               キャンバスをドラッグして時間と心拍数を測定できます
@@ -848,7 +845,7 @@ export default function App() {
         </div>
 
         {/* コントロールパネルエリア */}
-        <div className="flex flex-col bg-slate-800 border-t border-slate-700 flex-1 min-h-0">
+        <div className="flex flex-col bg-slate-800 border-t border-slate-700 flex-1 min-h-0 overflow-hidden">
           
           {/* タブスイッチ */}
           {!(uiTab === 'quiz' && (quizState === 'playing' || quizState === 'answered')) && (
@@ -883,7 +880,7 @@ export default function App() {
             </div>
           )}
 
-          <div className="p-6 overflow-y-auto custom-scrollbar flex-1 relative">
+          <div ref={controlPanelRef} className="p-6 overflow-y-auto overscroll-contain custom-scrollbar flex-1 min-h-0 relative">
             
             {/* --- マニュアルモード --- */}
             {uiTab === 'manual' && (
@@ -909,6 +906,15 @@ export default function App() {
                   </p>
                 </div>
 
+                {/* デスクトップ用：選択中モードの解説 */}
+                <div className="hidden sm:block bg-slate-900 border border-slate-700 rounded-xl p-4 shadow-inner">
+                  <div className="flex items-center justify-between gap-3 mb-2">
+                    <h3 className="font-bold text-white">{activeMode.label}</h3>
+                    <span className="text-xs font-mono font-bold text-green-400 bg-slate-800 px-2 py-1 rounded border border-slate-600 shrink-0">{monitorLeadLabel}</span>
+                  </div>
+                  <p className="text-sm text-slate-400 leading-relaxed">{activeMode.exp}</p>
+                </div>
+
                 {/* デスクトップ用グリッド */}
                 <div className="hidden sm:flex flex-col gap-6">
                   {Array.from(groupedModes.entries()).map(([category, catModes]) => (
@@ -922,6 +928,7 @@ export default function App() {
                         {catModes.map((mode) => (
                           <button
                             key={mode.id}
+                            type="button"
                             onClick={() => handleManualSelect(mode.id)}
                             className={`relative px-4 py-3 rounded-xl transition-all duration-200 border-2 overflow-hidden text-left
                               ${activeModeId === mode.id && !isPlayingScenario
@@ -968,7 +975,7 @@ export default function App() {
                     
                     <div className="bg-slate-900 border border-slate-700 p-4 rounded-lg">
                       <div className="font-bold text-rose-300 text-lg mb-2">3. QRS波 (QRS Complex)</div>
-                      <div className="text-sm text-slate-400">心室の興奮（心室の収縮）を示します。鋭く尖った波形です。正常幅は0.12秒未満。これが広がっていると、心室性の異常（PVCや脚ブロック）を疑います。</div>
+                      <div className="text-sm text-slate-400">心室の興奮（心室の収縮）を示します。鋭く尖った波形です。正常幅は0.12秒未満。これが広がっていると、心室性期外収縮（PVC）や心室性頻拍などの心室性の異常を疑います。</div>
                     </div>
                     
                     <div className="bg-slate-900 border border-slate-700 p-4 rounded-lg">
@@ -1299,8 +1306,6 @@ export default function App() {
                         <option value="normal">正常 (Normal)</option>
                         <option value="ste">ST上昇 (急性心筋梗塞疑い)</option>
                         <option value="std">ST低下 (心内膜下虚血など)</option>
-                        <option value="rbbb">右脚ブロック (RBBB)</option>
-                        <option value="lbbb">左脚ブロック (LBBB)</option>
                       </select>
                     </div>
                   </div>
@@ -1316,8 +1321,6 @@ export default function App() {
                       )}
                       {diyQrsType === 'ste' && <span className="text-indigo-400 ml-2">+ ST上昇</span>}
                       {diyQrsType === 'std' && <span className="text-cyan-400 ml-2">+ ST低下</span>}
-                      {diyQrsType === 'rbbb' && <span className="text-amber-400 ml-2">+ RBBB</span>}
-                      {diyQrsType === 'lbbb' && <span className="text-lime-400 ml-2">+ LBBB</span>}
                     </div>
                   </div>
                 </div>
@@ -1343,8 +1346,8 @@ export default function App() {
                     <button onClick={() => { setActiveModeId('avb1'); setCaliperTask('pr'); setIsPaused(true); }} className={`px-4 py-2 rounded-lg font-bold border transition-colors ${caliperTask === 'pr' ? 'bg-cyan-600 text-white border-cyan-400' : 'bg-slate-800 text-slate-400 border-slate-700 hover:bg-slate-700'}`}>
                       課題2: PR間隔 (1度AVB)
                     </button>
-                    <button onClick={() => { setActiveModeId('lbbb'); setCaliperTask('qrs'); setIsPaused(true); }} className={`px-4 py-2 rounded-lg font-bold border transition-colors ${caliperTask === 'qrs' ? 'bg-cyan-600 text-white border-cyan-400' : 'bg-slate-800 text-slate-400 border-slate-700 hover:bg-slate-700'}`}>
-                      課題3: QRS幅 (LBBB)
+                    <button onClick={() => { setActiveModeId('pvc'); setCaliperTask('qrs'); setIsPaused(true); }} className={`px-4 py-2 rounded-lg font-bold border transition-colors ${caliperTask === 'qrs' ? 'bg-cyan-600 text-white border-cyan-400' : 'bg-slate-800 text-slate-400 border-slate-700 hover:bg-slate-700'}`}>
+                      課題3: QRS幅 (PVC)
                     </button>
                   </div>
 
@@ -1366,8 +1369,8 @@ export default function App() {
                     {caliperTask === 'qrs' && (
                       <div className="animate-fade-in">
                         <div className="text-lg font-bold text-white mb-2">課題3: ワイドQRS (QRS幅の延長) の確認</div>
-                        <p className="text-slate-400 text-sm mb-4">QRS波の始まりから終わりまでをドラッグして測ります。<br/>正常は0.12秒（小さなマス目3つ分）未満です。現在の波形（左脚ブロック）でQRS幅がいかに広いか測ってみましょう。</p>
-                        <div className="bg-slate-800 p-3 rounded text-sm text-cyan-300">💡ポイント: QRS幅が0.12秒以上であれば、脚ブロックや心室性期外収縮(PVC)などの心室性の異常を疑います。</div>
+                        <p className="text-slate-400 text-sm mb-4">QRS波の始まりから終わりまでをドラッグして測ります。<br/>正常は0.12秒（小さなマス目3つ分）未満です。現在の波形（心室期外収縮）でQRS幅がいかに広いか測ってみましょう。</p>
+                        <div className="bg-slate-800 p-3 rounded text-sm text-cyan-300">💡ポイント: QRS幅が0.12秒以上であれば、心室性期外収縮(PVC)や心室性頻拍などの心室性の異常を疑います。</div>
                       </div>
                     )}
                   </div>
